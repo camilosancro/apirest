@@ -19,7 +19,10 @@ def registrar():
     usuarios = data['usuarios']
     procesos = data['procesos']
 
-    nombrearchivo = ip + '.csv'
+    #Convertir JSON  a CSV
+
+    date = datetime.now()
+    nombrearchivo = ip + '_' + str(date) + '.csv'
     print(nombrearchivo)
  
     data_file = open( nombrearchivo, 'w') 
@@ -39,10 +42,21 @@ def registrar():
         
     data_file.close()
 
+    # Fin Convertir CSV
+
+    # Convertir Json a Texto
+
+    nombrearchivo = ip + '_' + str(date) + '.txt'
+    data_file = open( nombrearchivo, 'w') 
+    json_string = json.dumps(data)
+    data_file.write(json_string)
+    data_file.close()
+
+    #  Fin Json a Texto
+
+  
     return jsonify({
-        "nombre": servidor[0]['nombre_servidor'],
-        "usuario 1": usuarios[0]['nombre_usuario'],
-       # "Proceso 2": procesos[0]["nombre"]
+        "mensaje": "Información registrada correctamente.",
     })
 
 
