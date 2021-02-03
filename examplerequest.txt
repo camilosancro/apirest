@@ -1,0 +1,19 @@
+{
+  "nombre": "ip-172-31-88-80",
+	 "procesador": "x86_64",
+		"sistema_operativo": "Linux",
+		"version": "#30-Ubuntu SMP Tue Oct 20 10:06:38 UTC 2020",
+  "usuarios":
+     [
+			"name='ubuntu', terminal='pts/0', host='190.46.3.37', started=1612320896.0, pid=1685",
+			 "name='ubuntu2', terminal='pts/1', host='190.46.3.37', started=1612320896.0, pid=1685"
+		 ],
+    "procesos": [
+    {
+      "proceso": "psutil.Process(pid=1, name='systemd', status='sleeping', started='02:53:42')"
+    },
+    {
+      "proceso": "sutil.Process(pid=2, name='kthreadd', status='sleeping', started='02:53:42')"
+    }
+   ]
+}
