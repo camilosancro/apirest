@@ -1,64 +1,52 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from flask import Flask, jsonify, request
+from datetime import datetime
+import json
+import csv
+
 
 app = Flask(__name__)
 
-from products import products
+#Servicio de registro de información enviada por el monitor
 
-@app.route('/ping')
-def ping():
-    return jsonify({"message":"pong!"})
+@app.route('/registrar', methods=['POST'])
+def registrar():
+    data = request.get_json()
+    ip = data['ip']
+    servidor = data['servidor']
+    usuarios = data['usuarios']
+    procesos = data['procesos']
 
-@app.route('/products', methods=['GET'])
-def getProducts():
-    return jsonify({"products":products, "message":"Products list"})
+    nombrearchivo = ip + '.csv'
+    print(nombrearchivo)
+ 
+    data_file = open( nombrearchivo, 'w') 
+    cabeceras = ['nombre_servidor', 'procesador', 'sistema_operativo', 'version', 'cpu_uso', 'nombre_usuario', 'terminal', 'pid_usuario', 'nombre_proceso', 'pid_proceso', 'username']
 
-@app.route('/products/<string:product_name>', methods=['GET'])
-def getProduct(product_name):
-    productFound = [product for product in products if product['name'] == product_name] 
-    if (len(productFound) > 0):
-        return jsonify({"product": productFound[0]})
-    else:
-        return jsonify("message:", "Producto no encontrado")
+    writer = csv.DictWriter(data_file, fieldnames=cabeceras)
+    writer.writeheader()
+    
+    for dato in servidor:
+        writer.writerow(dato)
 
-@app.route('/products', methods=['POST'])
-def addProduct():
-    new_product = {
-        "name" : request.json['name'],
-        "price" : request.json['price'],
-        "quantity" : request.json['quantity'] 
-    }
-    products.append(new_product)
-    return jsonify({"message:":"Producto ingresado correctamente","productos:": products})
+    for usuario in usuarios:
+        writer.writerow(usuario)
 
-@app.route('/products/<string:product_name>', methods=['PUT'])
-def editProduct(product_name):
-    productFound = [product for product in products if product['name'] == product_name] 
-    if (len(productFound) > 0):
-        productFound[0]['name'] = request.json['name']
-        productFound[0]['price'] = request.json['price']
-        productFound[0]['quantity'] = request.json['quantity']
-        return jsonify({
-            "message": "Producto actualizado",
-            "product": productFound[0]
-        })
-    else:
-        return jsonify("message:", "Producto no encontrado")
+    for proceso in procesos:
+        writer.writerow(proceso)
+        
+    data_file.close()
 
-@app.route('/products/<string:product_name>', methods=['DELETE'])
-def deleteProduct(product_name):
-    productFound = [product for product in products if product['name'] == product_name] 
-    if (len(productFound) > 0):
-        products.remove(productFound[0])
-        return jsonify({
-            "message:": "Producto eliminado",
-            "productos": products
-        })
-    else:
-         return jsonify("message:", "Producto no encontrado")
+    return jsonify({
+        "nombre": servidor[0]['nombre_servidor'],
+        "usuario 1": usuarios[0]['nombre_usuario'],
+       # "Proceso 2": procesos[0]["nombre"]
+    })
+
 
 
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
-
-
