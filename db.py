@@ -2,6 +2,8 @@ import mysql.connector
 from mysql.connector import Error
 from mysql.connector import errorcode
 from datetime import datetime
+import json
+from flask import  jsonify
 
 """
 Métodos para conectarse a la base de datos e insertar los valores de servidores, usuarios y procesos
@@ -81,6 +83,73 @@ def insertar_procesos(json_procesos, id_servidor):
     except mysql.connector.Error as error:
         print(mycursor._executed)
         print("Fallo al insertar en la tabla procesos {}".format(error))
+    finally:
+        mycursor.close()
+        cnx.close()
+
+def myconverter(o):
+    if isinstance(o, datetime):
+        return o.__str__()
+
+def recuperar_informacion():
+
+    try:        
+        cnx = mysql.connector.connect(option_files='mydb.conf')
+        mycursor = cnx.cursor()
+
+        sql_select_query= ("select servidor_id, servidor_nombre, servidor_sistema_operativo from servidores")
+
+        mycursor.execute(sql_select_query)
+
+        resultado = mycursor.fetchall()
+
+        payload = []
+        content = {}
+        for result in resultado:
+            content = {'id': result[0], 'nombre_servidor': result[1], 'sistema_operativo': result[2]}
+            payload.append(content)
+            content = {}
+
+        print(payload)
+        return jsonify(payload)
+
+        #return json.dumps(json_data, default = myconverter)       
+
+
+    except mysql.connector.Error as error:
+        print("Fallo al seleccionar data de la tabla servidores {}".format(error))
+    finally:
+        mycursor.close()
+        cnx.close()
+
+
+def recuperar_informacion_detalle(id_servidor):
+
+    try:        
+        cnx = mysql.connector.connect(option_files='mydb.conf')
+        mycursor = cnx.cursor()
+
+        sql_select_query= ("select servidor_id, servidor_nombre, servidor_sistema_operativo from servidores where servidor_id = '" + str(id_servidor) + "'")
+
+        mycursor.execute(sql_select_query)
+
+        resultado = mycursor.fetchall()
+
+        payload = []
+        content = {}
+        for result in resultado:
+            content = {'id': result[0], 'nombre_servidor': result[1], 'sistema_operativo': result[2]}
+            payload.append(content)
+            content = {}
+
+        print(payload)
+        return jsonify(payload)
+
+        #return json.dumps(json_data, default = myconverter)       
+
+
+    except mysql.connector.Error as error:
+        print("Fallo al seleccionar data de la tabla servidores {}".format(error))
     finally:
         mycursor.close()
         cnx.close()

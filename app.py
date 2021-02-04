@@ -78,7 +78,15 @@ def registrar():
         "mensaje": "Información registrada correctamente.",
     })
 
+@app.route('/servidores', methods=['GET'])
+def resultado_servidores():
+    resultado = db.recuperar_informacion()
+    return resultado
 
+@app.route('/servidores/<string:id_servidor>', methods=['GET'])
+def resultado_servidore(id_servidor):
+    resultado = db.recuperar_informacion_detalle(id_servidor)
+    return resultado
 
 
 if __name__ == '__main__':
