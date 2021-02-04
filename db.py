@@ -140,14 +140,14 @@ def recuperar_informacion_detalle(id_servidor):
         cnx = mysql.connector.connect(option_files='mydb.conf')
         mycursor = cnx.cursor()
 
-        sql_select_query= ("select servidor_id, servidor_nombre, servidor_sistema_operativo, servidor_fecha from servidores where servidor_id = '" + str(id_servidor) + "'")
+        sql_select_query= ("select servidor_id, servidor_nombre, servidor_sistema_operativo, servidor_fecha, servidor_version from servidores where servidor_id = '" + str(id_servidor) + "'")
         mycursor.execute(sql_select_query)
         resultado = mycursor.fetchall()
 
         payload['servidor'] = []
         content = {}
         for result in resultado:
-            content = {'id': result[0], 'nombre_servidor': result[1], 'sistema_operativo': result[2], 'servidor_fecha': result[3]}
+            content = {'id': result[0], 'nombre_servidor': result[1], 'sistema_operativo': result[2], 'servidor_version': result[4], 'servidor_fecha': result[3]}
             payload['servidor'].append(content)
             content = {}
 
