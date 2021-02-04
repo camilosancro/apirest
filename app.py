@@ -1,18 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+Este script expone servicios rest para registrar la información enviada por los monitores
+
+"""
+
+#Importamos los módulos requeridos
 from flask import Flask, jsonify, request
 from datetime import datetime
 import json
 import csv
+import db
 
 
 app = Flask(__name__)
 
-#Servicio de registro de información enviada por el monitor
+#Expones el servicio registrar para el método post
 
 @app.route('/registrar', methods=['POST'])
 def registrar():
+
+    #recolectamos la información enviada por la aplicación de monitoreo
     data = request.get_json()
     ip = data['ip']
     servidor = data['servidor']
@@ -54,7 +63,17 @@ def registrar():
 
     #  Fin Json a Texto
 
-  
+    # insertar registros en la base de datos
+
+    id_insertado = db.insertar_servidor(servidor)
+
+    db.insertar_usuarios(usuarios, id_insertado)
+    
+    db.insertar_procesos(procesos, id_insertado)
+
+    # fin registros en la base de datos 
+
+    #En caso de éxito, retornamos un mensaje de éxito
     return jsonify({
         "mensaje": "Información registrada correctamente.",
     })
