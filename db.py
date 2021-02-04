@@ -6,13 +6,16 @@ import json
 from flask import  jsonify
 
 """
-Métodos para conectarse a la base de datos e insertar los valores de servidores, usuarios y procesos
+Métodos para conectarse a la base de datos e insertar o entregar los valores de servidores, usuarios y procesos
 
 Estos métodos son invocados desde el archivo principal app.py
 
 """
 
 def insertar_servidor(json_servidores):
+    """
+        Método que se usa para insertar los registros del servidor entregado por el monitor
+    """
     try:        
 
         #Conexión realizada a través de archivo de parámetros.
@@ -44,6 +47,9 @@ def insertar_servidor(json_servidores):
         cnx.close()
 
 def insertar_usuarios(json_usuarios, id_servidor):
+    """
+        Método que se usa para insertar los registros de los usuarios activos entregado por el monitor
+    """
     try:        
         cnx = mysql.connector.connect(option_files='mydb.conf')
         mycursor = cnx.cursor()
@@ -66,6 +72,9 @@ def insertar_usuarios(json_usuarios, id_servidor):
         cnx.close()
 
 def insertar_procesos(json_procesos, id_servidor):
+    """
+        Método que se usa para insertar los procesos del servidor entregado por el monitor
+    """
     try:        
         cnx = mysql.connector.connect(option_files='mydb.conf')
         mycursor = cnx.cursor()
@@ -87,11 +96,10 @@ def insertar_procesos(json_procesos, id_servidor):
         mycursor.close()
         cnx.close()
 
-def myconverter(o):
-    if isinstance(o, datetime):
-        return o.__str__()
-
 def recuperar_informacion():
+    """
+        Método que se usa para devolver la información de los servidores registrados en la base de datos
+    """
 
     try:        
         cnx = mysql.connector.connect(option_files='mydb.conf')
@@ -113,9 +121,6 @@ def recuperar_informacion():
         print(payload)
         return jsonify(payload)
 
-        #return json.dumps(json_data, default = myconverter)       
-
-
     except mysql.connector.Error as error:
         print("Fallo al seleccionar data de la tabla servidores {}".format(error))
     finally:
@@ -124,32 +129,78 @@ def recuperar_informacion():
 
 
 def recuperar_informacion_detalle(id_servidor):
+    """
+        Método que se usa para devolver la información del servidor registrados en la base de datos pasado por parametro
+    """
 
+    payload={}
+
+    #Recuperamos la información del servidor entregado por parametro
     try:        
         cnx = mysql.connector.connect(option_files='mydb.conf')
         mycursor = cnx.cursor()
 
-        sql_select_query= ("select servidor_id, servidor_nombre, servidor_sistema_operativo from servidores where servidor_id = '" + str(id_servidor) + "'")
-
+        sql_select_query= ("select servidor_id, servidor_nombre, servidor_sistema_operativo, servidor_fecha from servidores where servidor_id = '" + str(id_servidor) + "'")
         mycursor.execute(sql_select_query)
-
         resultado = mycursor.fetchall()
 
-        payload = []
+        payload['servidor'] = []
         content = {}
         for result in resultado:
-            content = {'id': result[0], 'nombre_servidor': result[1], 'sistema_operativo': result[2]}
-            payload.append(content)
+            content = {'id': result[0], 'nombre_servidor': result[1], 'sistema_operativo': result[2], 'servidor_fecha': result[3]}
+            payload['servidor'].append(content)
             content = {}
-
-        print(payload)
-        return jsonify(payload)
-
-        #return json.dumps(json_data, default = myconverter)       
-
 
     except mysql.connector.Error as error:
         print("Fallo al seleccionar data de la tabla servidores {}".format(error))
     finally:
         mycursor.close()
         cnx.close()
+
+    #Recuperamos la información de los usuarios
+    try:        
+        cnx = mysql.connector.connect(option_files='mydb.conf')
+        mycursor = cnx.cursor()
+
+        sql_select_query= ("select usuario_nombre, usuario_terminal, usuario_pid from usuarios where servidor_id = '" + str(id_servidor) + "'")
+        mycursor.execute(sql_select_query)
+        resultado = mycursor.fetchall()
+
+        payload ['usuarios'] = []
+        content = {}
+        for result in resultado:
+            content = {'usuario_nombre': result[0], 'usuario_terminal': result[1], 'usuario_pid': result[2]}
+            payload['usuarios'].append(content)
+            content = {}
+
+    except mysql.connector.Error as error:
+        print("Fallo al seleccionar data de la tabla usuarios {}".format(error))
+    finally:
+        mycursor.close()
+        cnx.close()
+
+    #Recuperamos la información de los procesos
+    try:        
+        cnx = mysql.connector.connect(option_files='mydb.conf')
+        mycursor = cnx.cursor()
+
+        sql_select_query= ("select proceso_nombre, proceso_pid, proceso_username from procesos where servidor_id = '" + str(id_servidor) + "'")
+        mycursor.execute(sql_select_query)
+        resultado = mycursor.fetchall()
+
+        payload['procesos'] = []
+        content = {}
+        for result in resultado:
+            content = {'proceso_nombre': result[0], 'proceso_pid': result[1], 'proceso_username': result[2]}
+            payload['procesos'].append(content)
+            content = {}
+
+    except mysql.connector.Error as error:
+        print("Fallo al seleccionar data de la tabla procesos {}".format(error))
+    finally:
+        mycursor.close()
+        cnx.close()
+    
+    #Retornamos la información recoletada en formato json
+    print(payload)
+    return jsonify(payload)

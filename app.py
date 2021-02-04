@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Este script expone servicios rest para registrar la información enviada por los monitores
+Este script expone servicios para registrar o consultar la información de servidores enviada por los monitores
 
 """
 
@@ -15,6 +15,7 @@ import db
 
 
 app = Flask(__name__)
+app.config['JSON_SORT_KEYS'] = False
 
 #Expones el servicio registrar para el método post
 
@@ -77,6 +78,8 @@ def registrar():
     return jsonify({
         "mensaje": "Información registrada correctamente.",
     })
+
+# Servicios de consulta para todos los servidores registrados o por uno en particular
 
 @app.route('/servidores', methods=['GET'])
 def resultado_servidores():
